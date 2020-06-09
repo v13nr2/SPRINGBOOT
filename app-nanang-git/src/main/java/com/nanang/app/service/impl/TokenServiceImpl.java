@@ -6,11 +6,15 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.nanang.app.model.TokenRequest;
 import com.nanang.app.model.TokenResponse;
 import com.nanang.app.security.jwt.JwtProvider;
+import com.nanang.app.service.JwtUserDetailsService;
 import com.nanang.app.service.TokenService;
 import com.nanang.app.utility.Konstanta;
 import com.nanang.app.utility.Utility;
@@ -39,6 +43,10 @@ public class TokenServiceImpl implements TokenService {
 	@Autowired
     private JwtProvider jwtProvider;
 	
+
+	@Autowired
+	private JwtUserDetailsService userDetailsService;
+	
 	@Override
 	public TokenResponse getToken(TokenRequest token) {
 		// TODO Auto-generated method stub
@@ -47,13 +55,44 @@ public class TokenServiceImpl implements TokenService {
 		TokenResponse tokenResponse = new TokenResponse();
 		
 	    //jika sesuai generate Token
+		//v13 jika sesuai dengan data di tabel
+		final UserDetails userDetails = userDetailsService.loadUserByUsername(token.getClientId());
+		
+
+		//if(clientIdParam.equals(clientId) && SecretkeyParam.equals(secretKey)) {
 		if(clientIdParam.equals(clientId) && SecretkeyParam.equals(secretKey)) {
-			List<String> roleString = Arrays.asList("ROLE_ADMIN","ROLE_USER");
-			String bodyToken = Utility.buildingBodyTokenUsernameAndRole(clientId, regex1, roleString, regex2);
-			String tokenData = jwtProvider.generateJwtTokenCustom(bodyToken);
-			tokenResponse.setStatus(Konstanta.SUCCESSHTTPOK);
-			tokenResponse.setToken(tokenData);
+		
+//			List<String> roleString = Arrays.asList("ROLE_ADMIN","ROLE_USER");
+//			String bodyToken = Utility.buildingBodyTokenUsernameAndRole(clientId, regex1, roleString, regex2);
+//			String tokenData = jwtProvider.generateJwtTokenCustom(bodyToken);
+//			tokenResponse.setStatus(Konstanta.SUCCESSHTTPOK);
+//			tokenResponse.setToken(tokenData);
 	    }	
+		
+		if(userDetails.getUsername() != null) {
+			System.out.print(userDetails);
+			System.out.print("=>");
+			System.out.print(token.getSecret());
+			System.out.print("=>");
+			System.out.print(userDetails.getPassword());
+			
+			final String psDB = userDetails.getPassword().trim();
+			final String secret = token.getSecret().trim();
+			
+			if(psDB.equals(secret)) {
+				List<String> roleString = Arrays.asList("ROLE_ADMIN","ROLE_USER");
+				String bodyToken = Utility.buildingBodyTokenUsernameAndRole(clientId, regex1, roleString, regex2);
+				String tokenData = jwtProvider.generateJwtTokenCustom(bodyToken);
+				tokenResponse.setStatus(Konstanta.SUCCESSHTTPOK);
+				tokenResponse.setToken(tokenData);
+				
+			} else {
+				System.out.print("=>masuk TIDAK sama kondisi passwordnya");
+			}
+			
+		} else {
+			System.out.print("=>TIDAK ADA USER ITU sama kondisi passwordnya");
+		}
 		
 		
 		return tokenResponse;

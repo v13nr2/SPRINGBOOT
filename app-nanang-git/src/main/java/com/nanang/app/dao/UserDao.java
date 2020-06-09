@@ -10,4 +10,6 @@ public interface UserDao extends CrudRepository<DAOUser, Integer> {
 	
 	DAOUser findByUsername(String username);
 	
+	//DAOUser findByUsernameAndPassword(String username, String password);
+	
 }

@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,16 +48,38 @@ public class TokenController {
 	@PostMapping("getTokenPost")
 	public ResponseEntity<TokenResponse> getToken(@RequestBody TokenRequest token){
 		
-		final UserDetails userDetails = userDetailsService
-				.loadUserByUsername(token.getClientId());
+		final UserDetails userDetails = userDetailsService.loadUserByUsername(token.getClientId());
 		if(userDetails.getUsername() != null) {
-			TokenResponse response = tokenService.getToken(token);
-			return new ResponseEntity<TokenResponse>(response,HttpStatus.OK);
+			System.out.print(userDetails);
+			System.out.print("=>");
+			System.out.print(token.getSecret());
+			System.out.print("=>");
+			System.out.print(userDetails.getPassword());
+			
+			final String psDB = userDetails.getPassword().trim();
+			final String secret = token.getSecret().trim();
+			
+			if(psDB.equals(secret)) {
+				System.out.print("=>masuk sama kondisi passwordnya");
+				TokenResponse response = tokenService.getToken(token);
+				return new ResponseEntity<TokenResponse>(response,HttpStatus.OK);
+				
+			} else {
+				System.out.print("=>masuk TIDAK sama kondisi passwordnya");
+				TokenResponse response = tokenService.getToken(token);
+				return new ResponseEntity<TokenResponse>(response,HttpStatus.BAD_REQUEST);
+			}
+			
 		} else {
-
+			System.out.print("=>TIDAK ADA USER ITU sama kondisi passwordnya");
 			TokenResponse response = tokenService.getToken(token);
 			return new ResponseEntity<TokenResponse>(response,HttpStatus.BAD_REQUEST);
 		}
 		
+	}
+	
+	public PasswordEncoder passwordEncoder(){
+	    PasswordEncoder encoder = new BCryptPasswordEncoder();
+	    return encoder;
 	}
 }
