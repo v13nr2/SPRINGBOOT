@@ -50,36 +50,28 @@ public class TokenController {
 		
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(token.getClientId());
 		if(userDetails.getUsername() != null) {
-			System.out.print(userDetails);
-			System.out.print("=>");
-			System.out.print(token.getSecret());
-			System.out.print("=>");
-			System.out.print(userDetails.getPassword());
 			
 			final String psDB = userDetails.getPassword().trim();
 			final String secret = token.getSecret().trim();
 			
 			if(psDB.equals(secret)) {
-				System.out.print("=>masuk sama kondisi passwordnya");
+				//System.out.print("=>masuk sama kondisi passwordnya");
 				TokenResponse response = tokenService.getToken(token);
 				return new ResponseEntity<TokenResponse>(response,HttpStatus.OK);
 				
 			} else {
-				System.out.print("=>masuk TIDAK sama kondisi passwordnya");
+				//System.out.print("=>masuk TIDAK sama kondisi passwordnya");
 				TokenResponse response = tokenService.getToken(token);
 				return new ResponseEntity<TokenResponse>(response,HttpStatus.BAD_REQUEST);
 			}
 			
 		} else {
-			System.out.print("=>TIDAK ADA USER ITU sama kondisi passwordnya");
+			//System.out.print("=>TIDAK ADA USER ITU sama kondisi passwordnya");
 			TokenResponse response = tokenService.getToken(token);
 			return new ResponseEntity<TokenResponse>(response,HttpStatus.BAD_REQUEST);
 		}
 		
 	}
 	
-	public PasswordEncoder passwordEncoder(){
-	    PasswordEncoder encoder = new BCryptPasswordEncoder();
-	    return encoder;
-	}
+
 }

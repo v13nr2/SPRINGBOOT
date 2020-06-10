@@ -70,11 +70,7 @@ public class TokenServiceImpl implements TokenService {
 	    }	
 		
 		if(userDetails.getUsername() != null) {
-			System.out.print(userDetails);
-			System.out.print("=>");
-			System.out.print(token.getSecret());
-			System.out.print("=>");
-			System.out.print(userDetails.getPassword());
+
 			
 			final String psDB = userDetails.getPassword().trim();
 			final String secret = token.getSecret().trim();
@@ -87,11 +83,11 @@ public class TokenServiceImpl implements TokenService {
 				tokenResponse.setToken(tokenData);
 				
 			} else {
-				System.out.print("=>masuk TIDAK sama kondisi passwordnya");
+				//System.out.print("=>masuk TIDAK sama kondisi passwordnya");
 			}
 			
 		} else {
-			System.out.print("=>TIDAK ADA USER ITU sama kondisi passwordnya");
+			//System.out.print("=>TIDAK ADA USER ITU sama kondisi passwordnya");
 		}
 		
 		
